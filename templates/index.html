@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fake News Detector</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 15px;
+            background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)),
+                        url('https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1600&q=80%27') center/cover fixed no-repeat;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 780px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        /* Information Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .info-card {
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .info-real {
+            background: rgba(34, 197, 94, 0.15);
+            border-left: 4px solid #22c55e;
+            color: #bbf7d0;
+        }
+
+        .info-fake {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 4px solid #ef4444;
+            color: #fecaca;
+        }
+
+        .info-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        /* Form Controls */
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 0.95rem;
+            color: #f8fafc;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+        }
+
+        textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Result Display */
+        .result-box {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .result-real {
+            background: rgba(34, 197, 94, 0.25);
+            border: 2px solid #22c55e;
+            color: #4ade80;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .result-fake {
+            background: rgba(239, 68, 68, 0.25);
+            border: 2px solid #ef4444;
+            color: #f87171;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .container { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📰 Fake News Verifier</h1>
+    <p class="subtitle">AI-powered content validation trained on the WELFake dataset</p>
+
+    <!-- Definition Guide -->
+    <div class="info-grid">
+        <div class="info-card info-real">
+            <strong>✅ Real News</strong>
+            Verified, fact-checked reporting supported by credible sources, official quotes, and objective context.
+        </div>
+        <div class="info-card info-fake">
+            <strong>⚠️ Fake News</strong>
+            Fabricated stories, manipulated headlines, satire presented as truth, or unverified claims designed to mislead.
+        </div>
+    </div>
+
+    <!-- Prediction Form -->
+    <form method="POST">
+        <label for="news">Input Content (Headline, URL snippet, or Full Story):</label>
+        <textarea 
+            id="news" 
+            name="news" 
+            placeholder="Paste the news headline, link metadata, or body text here..." 
+            required></textarea>
+        <button type="submit" class="btn-submit">Analyze Authenticity</button>
+    </form>
+
+    <!-- Output Box -->
+    {% if result %}
+        {% if result == 'Real News' %}
+            <div class="result-box result-real">
+                🛡️ Classification Result: Real News
+            </div>
+        {% else %}
+            <div class="result-box result-fake">
+                🚨 Classification Result: Fake News
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+</body>
+</html>
